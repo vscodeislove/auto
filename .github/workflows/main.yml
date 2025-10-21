@@ -1,0 +1,30 @@
+name: Auto Commit (IST Noon)
+
+on:
+  schedule:
+    - cron: '30 6 * * *' # 12:00 PM IST = 06:30 AM UTC
+  workflow_dispatch: # allows manual run for testing
+
+jobs:
+  auto-commit:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Update last commit file
+        run: |
+          echo "Last auto commit: $(date '+%Y-%m-%d %H:%M:%S %Z')" > last-commit.txt
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "wearecare098@gmail.com"
+          git add last-commit.txt
+          git commit -m "🤖 Auto commit: $(date '+%Y-%m-%d %H:%M:%S')" || echo "No changes to commit"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
